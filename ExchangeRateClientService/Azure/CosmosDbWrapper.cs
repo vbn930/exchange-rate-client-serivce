@@ -4,7 +4,6 @@ using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 
 using ExchangeRateClientService.Utils;
-using ExchangeRateClientService.Models;
 using ExchangeRateClientService.Services;
 
 namespace GameStateService.Azure;
@@ -138,12 +137,12 @@ public class CosmosDbWrapper
         }
     }
 
-    public async Task DeleteItemAsync(string id, string pk)
+    public async Task DeleteItemAsync<T>(string id, string pk)
     {
         using (var log = _logger.StartMethod(nameof(DeleteItemAsync)))
         {
             log.SetAttribute("id", id);
-            await _container.DeleteItemAsync<PlayerData>(id, new PartitionKey(pk));
+            await _container.DeleteItemAsync<T>(id, new PartitionKey(pk));
         }
     }
 }
