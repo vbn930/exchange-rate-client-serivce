@@ -22,7 +22,7 @@ public class KeyVaultWapper
         string serviceName = configuration["Logging:ServiceName"];
         _logger = new Logger(serviceName);
 
-        string keyVaultUri = configuration["AzureFileServer:ConnectionStrings:BlobStorageEndpoint"];
+        string keyVaultUri = configuration["ExchangeRateClientService:KeyvaultUri"];
         if (string.IsNullOrEmpty(keyVaultUri))
         {
             _client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
