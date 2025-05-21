@@ -6,7 +6,7 @@ using Microsoft.Azure.Cosmos;
 using ExchangeRateClientService.Utils;
 using ExchangeRateClientService.Services;
 
-namespace GameStateService.Azure;
+namespace ExchangeRateClientService.Azure;
 using System.Text.Json;
 
 // A very simple wrapper to make it easier to call CosmosDb APIs

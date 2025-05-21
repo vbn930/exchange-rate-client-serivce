@@ -3,7 +3,7 @@ using Azure.Storage.Blobs;
 
 using ExchangeRateClientService.Utils;
 
-namespace GameStateService.Azure;
+namespace ExchangeRateClientService.Azure;
 
 // A very simple wrapper to make it easier to call Azure Storage Blob APIs
 public class BlobStorageWrapper
