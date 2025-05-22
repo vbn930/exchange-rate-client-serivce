@@ -4,10 +4,9 @@ namespace ExchangeRateClientService.Services;
 
 public static class CurrencyConvertor
 {
-    public static decimal ConvertToKRW(ExchangeRateData data, string baseCurrency)
+    public static decimal ConvertCurrencyRate(decimal srcCurrencyRate, decimal baseCurrencyRate)
     {
-        var rate = data.Rates[baseCurrency];
-        var currency = Math.Round(data.Rates["KRW"] / rate, 2);
+        var currency = Math.Round(srcCurrencyRate / baseCurrencyRate, 2);
         return currency;
     }
 }
