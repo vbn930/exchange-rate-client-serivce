@@ -7,6 +7,7 @@ using ExchangeRateClientService.Clients;
 namespace ExchangeRateClientService.Controller;
 
 [ApiController]
+[Route("exchange-rate")]
 public class ExchangeRateController : ControllerBase
 {
     private readonly Logger _logger;
@@ -23,7 +24,7 @@ public class ExchangeRateController : ControllerBase
         _exchangeAPIClient = exchangeAPIClient;
     }
 
-    [HttpGet]
+    [HttpGet("rate-data")]
     public async Task<IActionResult> GetExchangeRates()
     {
         using (var log = _logger.StartMethod(nameof(GetExchangeRates)))
