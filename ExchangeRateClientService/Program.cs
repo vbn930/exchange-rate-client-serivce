@@ -3,46 +3,59 @@ using ExchangeRateClientService.Dtos;
 using ExchangeRateClientService.Services;
 using ExchangeRateClientService.Utils;
 
-// var builder = WebApplication.CreateBuilder(args);
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Telemetry.Trace;
 
-// // Add services to the container.
-// // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
+var builder = WebApplication.CreateBuilder(args);
 
-// var app = builder.Build();
+IConfiguration configuration = builder.Configuration;
 
-// // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+string serviceName = configuration["Logging:ServiceName"];
+string serviceVersion = configuration["Logging:ServiceVersion"];
 
-// app.UseHttpsRedirection();
-
-// app.Run();
-
-//Test code for api request
-const string API_KEY = "c511651c1c924ddc9b621f261b3ee649";
-string url = $"https://openexchangerates.org/api/latest.json?app_id={API_KEY}&base=USD&prettyprint=true&show_alternative=false";
-
-var httpClient = new HttpClient();
-var apiRequestWrapper = new APIRequestWrapper(httpClient);
-var exchangeApiClient = new ExchangeAPIClient(apiRequestWrapper, API_KEY);
-
-var data = await exchangeApiClient.GetExchangeRateDataAsync();
-
-if (data != null)
+builder.Services.AddMemoryCache();
+builder.Services.AddOpenTelemetry().WithTracing(tcb =>
 {
-    Console.WriteLine($"Timestamp: {data.Timestamp}");
-    Console.WriteLine($"Rate: 1USD->{data.Rates["KRW"]}₩");
+    tcb
+    .AddSource(serviceName)
+    .SetResourceBuilder(
+        ResourceBuilder.CreateDefault()
+            .AddService(serviceName: serviceName, serviceVersion: serviceVersion))
+    .AddAspNetCoreInstrumentation()
+    .AddJsonConsoleExporter();
+});
 
-    var eur = CurrencyConvertor.ConvertToKRW(data, "EUR");
-    Console.WriteLine($"Rate: 1EUR->{eur}₩");
-}
-else
+builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddSingleton<APIRequestWrapper>();
+builder.Services.AddSingleton(provider =>
 {
-    Console.WriteLine("API Result is NULL");
+    var configuration = provider.GetService<IConfiguration>();
+    var apiRequestWrapper = provider.GetService<APIRequestWrapper>();
+    string token = "c511651c1c924ddc9b621f261b3ee649";
+    return new ExchangeAPIClient(configuration, apiRequestWrapper, token);
+});
+
+// Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-//test code ends
+
+//app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
