@@ -30,24 +30,6 @@ public class ExchangeRateController : ControllerBase
         using (var log = _logger.StartMethod(nameof(GetExchangeRates)))
         {
             var res = await _exchangeAPIClient.GetExchangeRateDataAsync();
-            var rateDict = res.Rates;
-            var rateKeyList = rateDict.Keys.ToList();
-            decimal KRWRate = rateDict["KRW"];
-
-            //convert base currency to KRW
-            for (int i = 0; i < rateDict.Count; i++)
-            {
-                string key = rateKeyList[i];
-                if (key != "KRW")
-                {
-                    rateDict[key] = CurrencyConvertor.ConvertCurrencyRate(KRWRate, rateDict[key]);
-                }
-            }
-
-            //for japan Yen, times 100
-            rateDict["JPY"] *= 100;
-            res.Rates = rateDict;
-
             return Ok(res);
         }
     }
