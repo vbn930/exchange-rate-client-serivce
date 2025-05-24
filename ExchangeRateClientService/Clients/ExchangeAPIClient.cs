@@ -96,11 +96,15 @@ public class ExchangeAPIClient
 
     public async Task SaveDataStackIntoDBAsync()
     {
-        //TODO: DB에 data stack 저장
-        await Task.Delay(0);
-        string id = DateTime.Now.ToString("yyyyMMdd");
-        var dataDict = DataStackToDict(id);
-        ClearDataStack();
+        using (var log = _logger.StartMethod(nameof(SaveDataStackIntoDBAsync)))
+        {
+            string id = DateTime.Now.ToString("yyyyMMdd");
+            log.SetAttribute("id", id);
+            var dataDict = DataStackToDict(id);
+            await _cosmosDbWrapper.AddItemAsync(dataDict, id);
+            ClearDataStack();
+        }
+        
     }
 
     public Dictionary<string, ConvertedExchangeRateData> DataStackToDict(string id)

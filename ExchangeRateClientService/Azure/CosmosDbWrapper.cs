@@ -58,7 +58,6 @@ public class CosmosDbWrapper
         {
             log.SetAttribute("item", item.ToString());
             log.SetAttribute("pk", pk);
-            Console.WriteLine(JsonSerializer.Serialize(item));
             await _container.CreateItemAsync(item, new PartitionKey(pk));
         }
     }
