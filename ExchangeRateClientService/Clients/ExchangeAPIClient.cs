@@ -4,6 +4,7 @@ using ExchangeRateClientService.Services;
 using ExchangeRateClientService.Dtos;
 using ExchangeRateClientService.Utils;
 using System.Globalization;
+using ExchangeRateClientService.Azure;
 
 namespace ExchangeRateClientService.Clients;
 
@@ -11,6 +12,7 @@ public class ExchangeAPIClient
 {
     private readonly Logger _logger;
     private readonly APIRequestWrapper _apiRequestWrapper;
+    private readonly CosmosDbWrapper _cosmosDbWrapper;
     private readonly string _token;
     private readonly string _apiRequestUrl;
     private readonly List<ConvertedExchangeRateData> _dataStack;
@@ -18,6 +20,7 @@ public class ExchangeAPIClient
     public ExchangeAPIClient(
         IConfiguration configuration,
         APIRequestWrapper apiRequestWrapper,
+        CosmosDbWrapper cosmosDbWrapper,
         string token
     )
     {
@@ -30,6 +33,7 @@ public class ExchangeAPIClient
         _logger = new Logger(serviceName);
 
         _apiRequestWrapper = apiRequestWrapper;
+        _cosmosDbWrapper = cosmosDbWrapper;
         _token = token;
         _apiRequestUrl = $"https://openexchangerates.org/api/latest.json?app_id={_token}&base=USD&prettyprint=true&show_alternative=false";
         _dataStack = new List<ConvertedExchangeRateData>();
@@ -47,7 +51,9 @@ public class ExchangeAPIClient
     public async Task<ConvertedExchangeRateData> GetExchangeRateDataAsync()
     {
         string res = await RequestExchangeRateDataAsync();
+
         if (string.IsNullOrEmpty(res)) { throw new Exception("API response is null or empty"); }
+
         using (var log = _logger.StartMethod(nameof(GetExchangeRateDataAsync)))
         {
             log.SetAttribute("response", res);
@@ -88,11 +94,25 @@ public class ExchangeAPIClient
         }
     }
 
-    public async Task SaveDataStackIntoDB()
+    public async Task SaveDataStackIntoDBAsync()
     {
         //TODO: DB에 data stack 저장
         await Task.Delay(0);
+        string id = DateTime.Now.ToString("yyyyMMdd");
+        var dataDict = DataStackToDict(id);
         ClearDataStack();
+    }
+
+    public Dictionary<string, ConvertedExchangeRateData> DataStackToDict(string id)
+    {
+        Dictionary<string, ConvertedExchangeRateData> dict = new Dictionary<string, ConvertedExchangeRateData>();
+
+        foreach (var data in _dataStack)
+        {
+            dict.Add(id, data);
+        }
+
+        return dict;
     }
 
     public void ClearDataStack()

@@ -1,3 +1,4 @@
+using ExchangeRateClientService.Azure;
 using ExchangeRateClientService.Clients;
 using ExchangeRateClientService.Dtos;
 using ExchangeRateClientService.Services;
@@ -28,12 +29,15 @@ builder.Services.AddOpenTelemetry().WithTracing(tcb =>
 
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddSingleton<APIRequestWrapper>();
+builder.Services.AddSingleton<CosmosDbWrapper>();
+builder.Services.AddSingleton<KeyVaultWapper>();
 builder.Services.AddSingleton(provider =>
 {
     var configuration = provider.GetService<IConfiguration>();
     var apiRequestWrapper = provider.GetService<APIRequestWrapper>();
+    var cosmosDbWrapper = provider.GetService<CosmosDbWrapper>();
     string token = "c511651c1c924ddc9b621f261b3ee649";
-    return new ExchangeAPIClient(configuration, apiRequestWrapper, token);
+    return new ExchangeAPIClient(configuration, apiRequestWrapper, cosmosDbWrapper, token);
 });
 
 // Add services to the container.
