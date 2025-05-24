@@ -7,13 +7,17 @@ using ExchangeRateClientService.Utils;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Telemetry.Trace;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
 IConfiguration configuration = builder.Configuration;
 
+Env.Load();
+
 string serviceName = configuration["Logging:ServiceName"];
 string serviceVersion = configuration["Logging:ServiceVersion"];
+string API_KEY = configuration["OPEN_EXCHANGE_RATES_API_KEY"];
 
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenTelemetry().WithTracing(tcb =>
@@ -36,8 +40,7 @@ builder.Services.AddSingleton(provider =>
     var configuration = provider.GetService<IConfiguration>();
     var apiRequestWrapper = provider.GetService<APIRequestWrapper>();
     var cosmosDbWrapper = provider.GetService<CosmosDbWrapper>();
-    string token = "c511651c1c924ddc9b621f261b3ee649";
-    return new ExchangeAPIClient(configuration, apiRequestWrapper, cosmosDbWrapper, token);
+    return new ExchangeAPIClient(configuration, apiRequestWrapper, cosmosDbWrapper, API_KEY);
 });
 
 // Add services to the container.
