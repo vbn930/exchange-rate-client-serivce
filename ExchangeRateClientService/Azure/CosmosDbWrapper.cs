@@ -27,7 +27,7 @@ public class CosmosDbWrapper
         string serviceName = configuration["Logging:ServiceName"];
         _logger = new Logger(serviceName);
         
-        string cosmosEndpoint = configuration["cosmos-endpoint"];
+        string cosmosEndpoint = configuration["ExchangeRateClientService:ConnectionStrings:cosmos-endpoint"];
         string cosmosConnectionString = configuration["cosmos-connection-string"];
         if (string.IsNullOrEmpty(cosmosConnectionString))
         {
@@ -38,8 +38,8 @@ public class CosmosDbWrapper
             _client = new CosmosClient(cosmosConnectionString);
         }
 
-        string databaseName = configuration["AzureFileServer:ConnectionStrings:CosmosDatabaseName"];
-        string containerName = configuration["AzureFileServer:ConnectionStrings:CosmosContainerName"];
+        string databaseName = configuration["ExchangeRateClientService:ConnectionStrings:CosmosDatabaseName"];
+        string containerName = configuration["ExchangeRateClientService:ConnectionStrings:CosmosContainerName"];
         _container = _client.GetContainer(databaseName, containerName);
     }
 

@@ -32,11 +32,15 @@ public class ExchangeAPIClient
         string serviceName = configuration["Logging:ServiceName"];
         _logger = new Logger(serviceName);
 
-        _apiRequestWrapper = apiRequestWrapper;
-        _cosmosDbWrapper = cosmosDbWrapper;
-        _token = token;
-        _apiRequestUrl = $"https://openexchangerates.org/api/latest.json?app_id={_token}&base=USD&prettyprint=true&show_alternative=false";
-        _dataStack = new List<ConvertedExchangeRateData>();
+        using (var log = _logger.StartMethod(nameof(ExchangeAPIClient)))
+        {
+            log.SetAttribute("token: ", token);
+            _apiRequestWrapper = apiRequestWrapper;
+            _cosmosDbWrapper = cosmosDbWrapper;
+            _token = token;
+            _apiRequestUrl = $"https://openexchangerates.org/api/latest.json?app_id={_token}&base=USD&prettyprint=true&show_alternative=false";
+            _dataStack = new List<ConvertedExchangeRateData>();
+        }
     }
 
     private async Task<string?> RequestExchangeRateDataAsync()
