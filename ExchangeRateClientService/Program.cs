@@ -11,9 +11,9 @@ using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
-IConfiguration configuration = builder.Configuration;
-
 Env.Load();
+
+IConfiguration configuration = builder.Configuration;
 
 string serviceName = configuration["Logging:ServiceName"];
 string serviceVersion = configuration["Logging:ServiceVersion"];

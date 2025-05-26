@@ -29,6 +29,11 @@ public class ExchangeAPIClient
             throw new ArgumentNullException(nameof(configuration));
         }
 
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new ArgumentNullException(nameof(token));
+        }
+
         string serviceName = configuration["Logging:ServiceName"];
         _logger = new Logger(serviceName);
 
