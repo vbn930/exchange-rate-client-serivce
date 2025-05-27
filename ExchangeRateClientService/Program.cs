@@ -17,7 +17,7 @@ IConfiguration configuration = builder.Configuration;
 
 string serviceName = configuration["Logging:ServiceName"];
 string serviceVersion = configuration["Logging:ServiceVersion"];
-string API_KEY = configuration["OPEN_EXCHANGE_RATES_API_KEY"];
+string API_KEY = Environment.GetEnvironmentVariable("OPEN_EXCHANGE_RATES_API_KEY");
 
 builder.Services.AddMemoryCache();
 builder.Services.AddOpenTelemetry().WithTracing(tcb =>
