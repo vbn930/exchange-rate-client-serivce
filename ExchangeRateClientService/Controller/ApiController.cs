@@ -12,6 +12,7 @@ public class ExchangeRateController : ControllerBase
 {
     private readonly Logger _logger;
     private readonly ExchangeAPIClient _exchangeAPIClient;
+
     public ExchangeRateController(IConfiguration configuration, ExchangeAPIClient exchangeAPIClient)
     {
         if (null == configuration)
