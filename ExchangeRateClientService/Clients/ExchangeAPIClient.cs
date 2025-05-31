@@ -109,20 +109,20 @@ public class ExchangeAPIClient
         {
             string id = DateTime.Now.ToString("yyyyMMdd");
             log.SetAttribute("id", id);
-            var dataDict = DataStackToDict(id);
+            var dataDict = new ConvertedExchangeRateDataDict(id, DataStackToDict());
             await _cosmosDbWrapper.AddItemAsync(dataDict, id);
             ClearDataStack();
         }
         
     }
 
-    public Dictionary<string, ConvertedExchangeRateData> DataStackToDict(string id)
+    public Dictionary<string, ConvertedExchangeRateData> DataStackToDict()
     {
         Dictionary<string, ConvertedExchangeRateData> dict = new Dictionary<string, ConvertedExchangeRateData>();
 
         foreach (var data in _dataStack)
         {
-            dict.Add(id, data);
+            dict.Add(data.Timestamp.ToString(), data);
         }
 
         return dict;
