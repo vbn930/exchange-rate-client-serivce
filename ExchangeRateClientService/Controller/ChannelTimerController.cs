@@ -1,17 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 
 using ExchangeRateClientService.Utils;
+using ExchangeRateClientService.Azure;
 using ExchangeRateClientService.Services;
 using ExchangeRateClientService.Clients;
 
 namespace ExchangeRateClientService.Controller;
 
-[TimerController]
+[ApiController]
 [Route("timer")]
-public class TimerController: ControllerBase{
+public class ChannelTimerController: ControllerBase
+{
     private readonly Logger _logger;
     private readonly CosmosDbWrapper _cosmosDbWrapper;
-    public TimerController(IConfiguration configuration, CosmosDbWrapper cosmosDbWrapper){
+    public ChannelTimerController(IConfiguration configuration, CosmosDbWrapper cosmosDbWrapper){
         if (null == configuration)
         {
             throw new ArgumentNullException(nameof(configuration));
@@ -26,14 +28,14 @@ public class TimerController: ControllerBase{
     public async Task<IActionResult> GetTimerSettingAsync(ulong id){
         using (var log = _logger.StartMethod(nameof(GetTimerSettingAsync))){
             string cosmosId = $"ChannelTimerSettings-{id}";
-            ulong pk = id;
+            string pk = id.ToString();
 
             log.SetAttribute("id", cosmosId);
             log.SetAttribute("pk", pk);
 
             var timerSetting = await _cosmosDbWrapper.GetItemAsync<ChannelTimerSetting>(cosmosId, pk);
 
-            if (timerSettinf == default){
+            if (timerSetting == default){
                 return NotFound();
             }
 
@@ -42,13 +44,13 @@ public class TimerController: ControllerBase{
     }
 
     [HttpPost("setting")]
-    public async Task<IActionResult<ChannelTimerSetting>> PostTimerSettingAsync(ChannelTimerSetting timerSetting){
+    public async Task<IActionResult> PostTimerSettingAsync(ChannelTimerSetting timerSetting){
         using (var log = _logger.StartMethod(nameof(PostTimerSettingAsync))){
             log.SetAttribute("Channel Id", timerSetting.ChannelId);
 
-            await _cosmosDbWrapper.AddItemAsync<ChannelTimerSetting>(timerSetting, timerSetting.ChannelId);
+            await _cosmosDbWrapper.AddItemAsync<ChannelTimerSetting>(timerSetting, timerSetting.ChannelId.ToString());
 
-            return return CreatedAtAction(nameof(GetTimerSettingAsync), new { id = timerSetting.ChannelId }, timerSetting);
+            return CreatedAtAction(nameof(GetTimerSettingAsync), new { id = timerSetting.ChannelId }, timerSetting);
         }
     }
 }
