@@ -22,8 +22,37 @@ public class DataController : ControllerBase
 
         string serviceName = configuration["Logging:ServiceName"];
         _logger = new Logger(serviceName);
-        
+
         _exchangeApiClient = exchangeApiClient;
         _cosmosDbWrapper = cosmosDbWrapper;
+    }
+
+    [HttpGet("data/{date}")]
+    public async Task<IActionResult> GetDataAsync(string date)
+    {
+        using (var log = _logger.StartMethod(nameof(GetDataAsync)))
+        {
+            log.SetAttribute("Date", date);
+
+            if (string.IsNullOrEmpty(date) || date.Length != 6 || !long.TryParse(date, out _))
+            {
+                return BadRequest("Date parameter is invaild");
+            }
+
+            string id = $"ConvertedExchangeRateDataDict-{date}";
+            var data = await _cosmosDbWrapper.GetItemAsync<ConvertedExchangeRateDataDict>(id, date);
+
+            return Ok(data);
+        }
+    }
+
+    [HttpPost("save-data")]
+    public async Task<IActionResult> PostSaveDataAsync()
+    {
+        using (var log = _logger.StartMethod(nameof(PostSaveDataAsync)))
+        {
+            await _exchangeApiClient.SaveDataStackIntoDBAsync();
+            return Ok();
+        }
     }
 }
