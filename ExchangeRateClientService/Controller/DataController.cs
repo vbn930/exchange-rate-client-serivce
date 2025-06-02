@@ -36,7 +36,7 @@ public class DataController : ControllerBase
 
             if (string.IsNullOrEmpty(date) || date.Length != 6 || !long.TryParse(date, out _))
             {
-                return BadRequest("Date parameter is invaild");
+                return BadRequest("Date parameter invaild");
             }
 
             string id = $"ConvertedExchangeRateDataDict-{date}";
@@ -51,6 +51,14 @@ public class DataController : ControllerBase
     {
         using (var log = _logger.StartMethod(nameof(PostSaveDataAsync)))
         {
+            int dataStackCount = _exchangeApiClient.GetDataStack().Count();
+            log.SetAttribute("Data stack size", dataStackCount);
+            
+            if (dataStackCount < 0)
+            {
+                return BadRequest("Data stack size should more than 0");
+            }
+
             await _exchangeApiClient.SaveDataStackIntoDBAsync();
             return Ok();
         }

@@ -128,6 +128,11 @@ public class ExchangeAPIClient
         return dict;
     }
 
+    public List<ConvertedExchangeRateData> GetDataStack()
+    {
+        return _dataStack;
+    }
+
     public void ClearDataStack()
     {
         _dataStack.Clear();
